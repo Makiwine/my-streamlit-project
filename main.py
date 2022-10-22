@@ -34,6 +34,14 @@ def load_data():
     return df
 
 app_mode = st.sidebar.selectbox('Select Page',['Home']) #two pages
+st.title('COVID-19 DATASET DISPLAY :')
+st.image('covid19.jpg')
+data = load_data()
+ # st.write(data)
+df= data.drop(["Date"], axis=1,inplace =True)
+st.markdown("dataset:")
+st.write(data.head(20))
+
 st.sidebar.subheader("Histogram Settings")
 st.markdown('Histogram')
 x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
@@ -49,14 +57,7 @@ plot=alt.Chart(data).mark_circle().encode(x=x_values, y=y_values).interactive()
 st.altair_chart(plot,use_container_width=True)
 if app_mode=='Home':
     choises=st.selectbox('Which graphes you want to plot', ['line_chart','area_chart','Boxplot'])
-    st.title('COVID-19 DATASET DISPLAY :')
-    st.image('covid19.jpg')
     
-    data = load_data()
-    # st.write(data)
-    df= data.drop(["Date"], axis=1,inplace =True)
-    st.markdown("dataset:")
-    st.write(data)
     if choises=='line_chart':
        st.markdown('Lineplots')
        st.line_chart(df,width=1100, height=400)
