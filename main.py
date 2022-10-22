@@ -34,7 +34,19 @@ def load_data():
     return df
 
 app_mode = st.sidebar.selectbox('Select Page',['Home']) #two pages
-
+st.sidebar.subheader("Histogram Settings")
+st.markdown('Histogram')
+x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
+bin_size = st.sidebar.slider("Number of Bins", min_value=10,max_value=100, value=40)
+plot = px.histogram(x=x, data_frame=data)
+st.plotly_chart(plot)
+    
+st.markdown('Scatterplot')
+x_values = st.sidebar.selectbox('X axis', options=numeric_columns)
+y_values = st.sidebar.selectbox('Y axis', options=numeric_columns)
+plot=alt.Chart(data).mark_circle().encode(x=x_values, y=y_values).interactive()
+# display the char
+st.altair_chart(plot,use_container_width=True)
 if app_mode=='Home':
     choises=st.selectbox('Which graphes you want to plot', ['line_chart','area_chart','Boxplot'])
     st.title('COVID-19 DATASET DISPLAY :')
@@ -57,16 +69,4 @@ if app_mode=='Home':
         plot = px.box(df)
         st.plotly_chart(plot)
         
- st.sidebar.subheader("Histogram Settings")
- st.markdown('Histogram')
- x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
- bin_size = st.sidebar.slider("Number of Bins", min_value=10,max_value=100, value=40)
- plot = px.histogram(x=x, data_frame=data)
- st.plotly_chart(plot)
-    
- st.markdown('Scatterplot')
- x_values = st.sidebar.selectbox('X axis', options=numeric_columns)
- y_values = st.sidebar.selectbox('Y axis', options=numeric_columns)
- plot=alt.Chart(data).mark_circle().encode(x=x_values, y=y_values).interactive()
- # display the char
- st.altair_chart(plot,use_container_width=True)
+ 
