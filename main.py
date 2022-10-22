@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.express as px
 import altair as alt
-from sklearn import preprocessing
 import pickle  #to load a saved model
 import base64  #to open .gif files in streamlit app
 @st.cache(suppress_st_warning=True)
@@ -17,76 +16,58 @@ def get_value(val,my_dict):
     for key,value in my_dict.items():
         if val == key:
             return value
+        
+global numeric_columns
+global non_numeric_columns
+try:
+    st.write(df)
+    numeric_columns = list(df.select_dtypes(['float', 'int']).columns)
+    non_numeric_columns = list(df.select_dtypes(['object']).columns)
+    non_numeric_columns.append(None)
+    print(non_numeric_columns)
+except Exception as e:
+    print(e)
+
+def load_data():
+    df=pd.read_csv("day_wise.csv")
+    
+    return df
 
 app_mode = st.sidebar.selectbox('Select Page',['Home']) #two pages
 
 if app_mode=='Home':
-    choises=st.selectbox('Which graphes you want to plot', ['hist', 'bar_chart', 'line_chart','area_chart','altair_chart'])
-    if choises=='hist':
-        st.title('COVID-19 DATASET DISPLAY :')
-        st.image('covid19.jpg')
-        st.markdown('Dataset :')
-        df = pd.read_csv('day_wise.csv')
-        df.drop(['Date'], axis=1, inplace=True)
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df)
-        df_scale = scaler.transform(df)
-        df = pd.DataFrame(df_scale, columns=['Confirmed', 'Deaths', 'Recovered', 'Active','New cases','New deaths','New recovered','Deaths / 100 Cases','Recovered / 100 Cases','Deaths / 100 Recovered','No. of countries'])
-        st.write(df.head(20))
-        st.markdown('Covid desease dataset by country/region ')
-        fig,ax = plt.subplots()
-        ax.hist(df, bins=15)
-        st.pyplot(fig)
-    elif choises=='bar_chart':
-        st.title('COVID-19 DATASET DISPLAY :')
-        st.image('covid19.jpg')
-        st.markdown('Dataset :')
-        df = pd.read_csv('covid_19_clean_complete.csv')
-        df.drop(['Date'], axis=1, inplace=True)
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df)
-        df_scale = scaler.transform(df)
-        df = pd.DataFrame(df_scale, columns=['Confirmed', 'Deaths', 'Recovered', 'Active','New cases','New deaths','New recovered','Deaths / 100 Cases','Recovered / 100 Cases','Deaths / 100 Recovered','No. of countries'])
-        st.write(df.head(20))
-        st.markdown('Covid desease dataset by country/region ')
-        st.bar_chart(df)
-    elif choises=='line_chart':
-        st.title('COVID-19 DATASET DISPLAY :')
-        st.image('covid19.jpg')
-        st.markdown('Dataset :')
-        df = pd.read_csv('covid_19_clean_complete.csv')
-        df.drop(['Date'], axis=1, inplace=True)
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df)
-        df_scale = scaler.transform(df)
-        df = pd.DataFrame(df_scale, columns=['Confirmed', 'Deaths', 'Recovered', 'Active','New cases','New deaths','New recovered','Deaths / 100 Cases','Recovered / 100 Cases','Deaths / 100 Recovered','No. of countries'])
-        st.write(df.head(20))
-        st.markdown('Covid desease dataset by country/region ')
-        st.line_chart(df)
+    choises=st.selectbox('Which graphes you want to plot', ['line_chart','area_chart','Boxplot'])
+    st.title('COVID-19 DATASET DISPLAY :')
+    st.image('covid19.jpg')
+    
+    data = load_data()
+    # st.write(data)
+    df= data.drop(["Date"], axis=1,inplace =True)
+    st.markdown("dataset:")
+    st.write(data)
+    if choises=='line_chart':
+       st.markdown('Lineplots')
+       st.line_chart(df,width=1100, height=400)
+
     elif choises=='area_chart':
-        st.title('COVID-19 DATASET DISPLAY :')
-        st.image('covid19.jpg')
-        st.markdown('Dataset :')
-        df = pd.read_csv('covid_19_clean_complete.csv')
-        df.drop(['Date'], axis=1, inplace=True)
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df)
-        df_scale = scaler.transform(df)
-        df = pd.DataFrame(df_scale, columns=['Confirmed', 'Deaths', 'Recovered', 'Active','New cases','New deaths','New recovered','Deaths / 100 Cases','Recovered / 100 Cases','Deaths / 100 Recovered','No. of countries'])
-        st.write(df.head(20))
-        st.markdown('Covid desease dataset by country/region ')
+        st.write('This is a area_chart.')
         st.area_chart(df)
-    else:
-        st.title('COVID-19 DATASET DISPLAY :')
-        st.image('covid19.jpg')
-        st.markdown('Dataset :')
-        df = pd.read_csv('covid_19_clean_complete.csv')
-        df.drop(['Date'], axis=1, inplace=True)
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df)
-        df_scale = scaler.transform(df)
-        df = pd.DataFrame(df_scale, columns=['Confirmed', 'Deaths', 'Recovered', 'Active','New cases','New deaths','New recovered','Deaths / 100 Cases','Recovered / 100 Cases','Deaths / 100 Recovered','No. of countries'])
-        st.write(df.head(20))
-        st.markdown('Covid desease dataset by country/region ')
-        c=alt.Chart(df).mark_point().encode(df)
-        st.altair_chart(c, use_container_width=True)
+    elif choises=='Boxplot':
+        st.markdown('Boxplot')
+        plot = px.box(df)
+        st.plotly_chart(plot)
+        
+  st.sidebar.subheader("Histogram Settings")
+  st.markdown('Histogram')
+  x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
+  bin_size = st.sidebar.slider("Number of Bins", min_value=10,
+                             max_value=100, value=40)
+  plot = px.histogram(x=x, data_frame=data)
+  st.plotly_chart(plot)
+    
+ st.markdown('Scatterplot')
+ x_values = st.sidebar.selectbox('X axis', options=numeric_columns)
+ y_values = st.sidebar.selectbox('Y axis', options=numeric_columns)
+ plot=alt.Chart(data).mark_circle().encode(x=x_values, y=y_values).interactive()
+ # display the char
+ st.altair_chart(plot,use_container_width=True)
