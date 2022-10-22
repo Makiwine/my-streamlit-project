@@ -57,13 +57,12 @@ if app_mode=='Home':
         plot = px.box(df)
         st.plotly_chart(plot)
         
-  st.sidebar.subheader("Histogram Settings")
-  st.markdown('Histogram')
-  x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
-  bin_size = st.sidebar.slider("Number of Bins", min_value=10,
-                             max_value=100, value=40)
-  plot = px.histogram(x=x, data_frame=data)
-  st.plotly_chart(plot)
+ st.sidebar.subheader("Histogram Settings")
+ st.markdown('Histogram')
+ x = st.sidebar.selectbox('Select target column:', options=numeric_columns)
+ bin_size = st.sidebar.slider("Number of Bins", min_value=10,max_value=100, value=40)
+ plot = px.histogram(x=x, data_frame=data)
+ st.plotly_chart(plot)
     
  st.markdown('Scatterplot')
  x_values = st.sidebar.selectbox('X axis', options=numeric_columns)
